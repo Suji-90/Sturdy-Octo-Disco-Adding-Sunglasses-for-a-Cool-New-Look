@@ -25,4 +25,86 @@ Welcome to Sturdy Octo Disco, a fun and creative project designed to overlay sun
 - Adding flair to your photos for fun.
 - Practicing computer vision workflows.
 
-Feel free to fork, contribute, or customize this project for your creative needs!
+## Program:
+## NAME:SUJITHRA K
+## REG NO:212223040212
+```
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Load the face image
+img = cv2.imread("/content/suji image.jpg")
+plt.imshow(img[:,:,::-1]); plt.title("Face")
+
+# Load the sunglass image
+glassPNG = cv2.imread("/content/sunglasses image.jpeg", -1)
+
+# Resize the sunglass image to fit on the face
+glassPNG = cv2.resize(glassPNG, (180, 80))
+print("Image Dimension =", glassPNG.shape)
+
+# Check if alpha channel exists, if not add one
+if glassPNG.shape[-1] == 3:
+    glassPNG = cv2.cvtColor(glassPNG, cv2.COLOR_BGR2BGRA)
+
+# Split into color and alpha channels
+glassBGR = glassPNG[:, :, :3]
+glassMask1 = glassPNG[:, :, 3]
+
+# Resize glassMask to match eyeROI size
+eyeROI = img[165:245, 125:305]  # Adjusted ROI
+glassMask1 = cv2.resize(glassMask1, (eyeROI.shape[1], eyeROI.shape[0]))
+glassBGR = cv2.resize(glassBGR, (eyeROI.shape[1], eyeROI.shape[0]))
+
+# Display sunglass color channels and alpha channel
+plt.figure(figsize=[15, 15])
+plt.subplot(121); plt.imshow(glassBGR[:,:,::-1]); plt.title('Sunglass Color channels')
+plt.subplot(122); plt.imshow(glassMask1, cmap='gray'); plt.title('Sunglass Alpha channel')
+
+# Create mask for blending
+glassMask = cv2.merge((glassMask1, glassMask1, glassMask1))
+glassMask = glassMask.astype(np.float32) / 255  # Convert to float for blending
+
+# Masked eye region
+faceWithGlassesArithmetic = img.copy()
+eyeROI = faceWithGlassesArithmetic[165:245, 125:305]
+
+# Ensure data types match
+eyeROI = eyeROI.astype(np.float32) / 255
+glassBGR = glassBGR.astype(np.float32) / 255
+
+# Apply blending
+maskedEye = cv2.multiply(eyeROI, (1 - glassMask))
+maskedGlass = cv2.multiply(glassBGR, glassMask)
+eyeRoiFinal = cv2.add(maskedEye, maskedGlass)
+
+# Convert back to uint8
+eyeRoiFinal = (eyeRoiFinal * 255).astype(np.uint8)
+
+# Display masked and blended regions
+plt.figure(figsize=[20, 20])
+plt.subplot(131); plt.imshow(maskedEye[...,::-1]); plt.title("Masked Eye Region")
+plt.subplot(132); plt.imshow(maskedGlass[...,::-1]); plt.title("Masked Sunglass Region")
+plt.subplot(133); plt.imshow(eyeRoiFinal[...,::-1]); plt.title("Augmented Eye and Sunglass")
+
+
+# Final result with blending
+faceWithGlassesArithmetic[165:245, 125:305] = eyeRoiFinal 
+plt.figure(figsize=[10, 10])
+
+plt.subplot(121); plt.imshow(img[:,:,::-1]); plt.title("Original Image")
+plt.subplot(122); plt.imshow(faceWithGlassesArithmetic[:,:,::-1]); plt.title("With Sunglasses")
+```
+## Output:
+<img width="493" height="579" alt="image" src="https://github.com/user-attachments/assets/653c369f-c873-48d6-8e20-e2bf9ac6b401" />
+<img width="1327" height="355" alt="image" src="https://github.com/user-attachments/assets/a578653a-bfdb-43a2-9fdd-ff0ff4f5b969" />
+<img width="1341" height="268" alt="image" src="https://github.com/user-attachments/assets/075b0043-d105-40db-a19c-f8e00cf7c29c" />
+<img width="750" height="492" alt="image" src="https://github.com/user-attachments/assets/c6775799-d870-4459-a02f-bfd742105d2b" />
+
+## Result:
+Thus, the code was verified successfully.
+
+
+
+
